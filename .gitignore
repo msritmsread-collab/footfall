@@ -1,0 +1,25 @@
+# Credentials
+BigQuery_Credential.json
+secrets_local.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Output files
+*.csv
+processed_dates.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude
+.claude/
