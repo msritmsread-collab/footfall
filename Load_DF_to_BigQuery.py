@@ -15,15 +15,13 @@ print('***** Name of Table is', table_id)
 
 
 def _get_credentials():
-    """Get BigQuery credentials from file or Secret Manager."""
-    from gcp_secrets import get_secret, is_cloud
-
-    if is_cloud():
-        cred_json = json.loads(get_secret("connector-bq-service-account"))
-        return service_account.Credentials.from_service_account_info(cred_json)
-    else:
-        key_path = f'{current_folder_path}/BigQuery_Credential.json'
+    """Get BigQuery credentials from local JSON file or Secret Manager."""
+    key_path = f'{current_folder_path}/BigQuery_Credential.json'
+    if os.path.exists(key_path):
         return service_account.Credentials.from_service_account_file(key_path)
+    from gcp_secrets import get_secret
+    cred_json = json.loads(get_secret("connector-bq-service-account"))
+    return service_account.Credentials.from_service_account_info(cred_json)
 
 
 key_path = f'{current_folder_path}/BigQuery_Credential.json'
