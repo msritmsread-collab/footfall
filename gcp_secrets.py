@@ -24,23 +24,24 @@ def get_project_id():
 
 
 def get_secret(secret_id, project_id=None):
-    """Retrieve a secret from GCP Secret Manager or local fallback."""
+    """Retrieve a secret from local file first, then GCP Secret Manager."""
+    local_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "secrets_local.json"
+    )
+    if os.path.exists(local_path):
+        with open(local_path, "r") as f:
+            secrets = json.load(f)
+        if secret_id in secrets:
+            return secrets[secret_id]
+
     if project_id is None:
         project_id = get_project_id()
 
-    if is_cloud():
-        from google.cloud import secretmanager
-        client = secretmanager.SecretManagerServiceClient()
-        name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
-        response = client.access_secret_version(request={"name": name})
-        return response.payload.data.decode("UTF-8")
-    else:
-        local_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "secrets_local.json"
-        )
-        with open(local_path, "r") as f:
-            secrets = json.load(f)
-        return secrets[secret_id]
+    from google.cloud import secretmanager
+    client = secretmanager.SecretManagerServiceClient()
+    name = f"projects/{project_id}/secrets/{secret_id}/versions/latest"
+    response = client.access_secret_version(request={"name": name})
+    return response.payload.data.decode("UTF-8")
 
 
 def get_secret_json(secret_id, project_id=None):
